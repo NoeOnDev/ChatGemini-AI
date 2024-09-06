@@ -12,7 +12,7 @@ class HomeScreen extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () {
-            Navigator.pushNamed(context, '/details');
+            Navigator.pushNamed(context, '/otherScreen');
           },
           child: const Text('Go to Details Screen'),
         ),
