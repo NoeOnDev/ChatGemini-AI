@@ -1,5 +1,6 @@
 // lib/screens/auth_screen.dart
 import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/custom_button.dart';
 
@@ -13,6 +14,20 @@ class AuthScreen extends StatefulWidget {
 class AuthScreenState extends State<AuthScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final Logger _logger = Logger('AuthScreen');
+
+  @override
+  void initState() {
+    super.initState();
+    _setupLogging();
+  }
+
+  void _setupLogging() {
+    Logger.root.level = Level.ALL;
+    Logger.root.onRecord.listen((record) {
+      print('${record.level.name}: ${record.time}: ${record.message}');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,8 +54,8 @@ class AuthScreenState extends State<AuthScreen> {
             CustomButton(
               text: 'Login',
               onPressed: () {
-                print('Email: ${_emailController.text}');
-                print('Password: ${_passwordController.text}');
+                _logger.info('Email: ${_emailController.text}');
+                _logger.info('Password: ${_passwordController.text}');
               },
             ),
           ],

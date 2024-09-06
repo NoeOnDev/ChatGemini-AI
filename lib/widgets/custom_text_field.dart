@@ -22,7 +22,7 @@ class CustomTextField extends StatelessWidget {
       obscureText: obscureText,
       decoration: InputDecoration(
         labelText: labelText,
-        border: const OutlineInputBorder(),
+        border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(8.0))),
       ),
     );
   }
