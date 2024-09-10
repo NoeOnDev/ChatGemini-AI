@@ -1,4 +1,3 @@
-// lib/screens/auth_screen.dart
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import '../widgets/custom_text_field.dart';
