@@ -42,12 +42,16 @@ class AuthScreenState extends State<AuthScreen> {
               labelText: 'Email',
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
+              borderColor: Colors.blue,
+              textColor: Colors.blue,
             ),
             const SizedBox(height: 16.0),
             CustomTextField(
               labelText: 'Password',
               controller: _passwordController,
               obscureText: true,
+              borderColor: Colors.blue,
+              textColor: Colors.blue,
             ),
             const SizedBox(height: 16.0),
             CustomButton(
@@ -56,6 +60,8 @@ class AuthScreenState extends State<AuthScreen> {
                 _logger.info('Email: ${_emailController.text}');
                 _logger.info('Password: ${_passwordController.text}');
               },
+              color: Colors.blue,
+              textColor: Colors.white,
             ),
           ],
         ),
