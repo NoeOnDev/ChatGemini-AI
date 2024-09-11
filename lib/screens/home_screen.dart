@@ -12,9 +12,9 @@ class HomeScreen extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () {
-            Navigator.pushNamed(context, '/auth');
+            Navigator.pushNamed(context, '/posts');
           },
-          child: const Text('Go to Details Screen'),
+          child: const Text('Go to Api consumer Screen'),
         ),
       ),
     );
