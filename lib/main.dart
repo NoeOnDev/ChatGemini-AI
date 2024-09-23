@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
 import 'screens/posts_screen.dart';
+import 'screens/gifts_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,6 +20,7 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
+        '/': (context) => const GifsScreen(),
         '/continue': (context) => const HomeScreen(),
         '/posts': (context) => const PostsScreen(),
       },
