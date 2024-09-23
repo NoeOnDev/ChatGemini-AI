@@ -3,15 +3,15 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../models//gift.dart';
 
-class GifsScreen extends StatefulWidget {
-  const GifsScreen({super.key});
+class GiftsScreen extends StatefulWidget {
+  const GiftsScreen({super.key});
 
   @override
-  GifsScreenState createState() => GifsScreenState();
+  GiftsScreenState createState() => GiftsScreenState();
 }
 
-class GifsScreenState extends State<GifsScreen> {
-  final List<Gif> _gifs = [];
+class GiftsScreenState extends State<GiftsScreen> {
+  final List<Gif> _gifts = [];
   bool _isLoading = false;
   int _page = 1;
   final int _limit = 10;
@@ -21,12 +21,12 @@ class GifsScreenState extends State<GifsScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchGifs();
+    _fetchGifts();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
               _scrollController.position.maxScrollExtent &&
           !_isLoading) {
-        _fetchGifs();
+        _fetchGifts();
       }
     });
   }
@@ -37,7 +37,7 @@ class GifsScreenState extends State<GifsScreen> {
     super.dispose();
   }
 
-  Future<void> _fetchGifs() async {
+  Future<void> _fetchGifts() async {
     setState(() {
       _isLoading = true;
     });
@@ -47,12 +47,12 @@ class GifsScreenState extends State<GifsScreen> {
 
     if (response.statusCode == 200) {
       Map<String, dynamic> jsonResponse = json.decode(response.body);
-      List<Gif> fetchedGifs = (jsonResponse['data'] as List)
+      List<Gif> fetchedGifts = (jsonResponse['data'] as List)
           .map((gif) => Gif.fromJson(gif))
           .toList();
 
       setState(() {
-        _gifs.addAll(fetchedGifs);
+        _gifts.addAll(fetchedGifts);
         _page++;
         _isLoading = false;
       });
@@ -60,7 +60,7 @@ class GifsScreenState extends State<GifsScreen> {
       setState(() {
         _isLoading = false;
       });
-      throw Exception('Failed to load gifs');
+      throw Exception('Failed to load gifts');
     }
   }
 
@@ -70,7 +70,7 @@ class GifsScreenState extends State<GifsScreen> {
       appBar: AppBar(
         title: const Text('GIFs'),
       ),
-      body: _gifs.isEmpty && _isLoading
+      body: _gifts.isEmpty && _isLoading
           ? const Center(child: CircularProgressIndicator())
           : GridView.builder(
               controller: _scrollController,
@@ -79,9 +79,9 @@ class GifsScreenState extends State<GifsScreen> {
                 crossAxisSpacing: 8.0,
                 mainAxisSpacing: 8.0,
               ),
-              itemCount: _gifs.length + 1,
+              itemCount: _gifts.length + 1,
               itemBuilder: (context, index) {
-                if (index == _gifs.length) {
+                if (index == _gifts.length) {
                   return _isLoading
                       ? const Padding(
                           padding: EdgeInsets.all(8.0),
@@ -91,7 +91,7 @@ class GifsScreenState extends State<GifsScreen> {
                 }
 
                 return Image.network(
-                  _gifs[index].url,
+                  _gifts[index].url,
                   fit: BoxFit.cover,
                 );
               },
