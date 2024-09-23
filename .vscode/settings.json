@@ -1,4 +1,7 @@
 {
     "java.compile.nullAnalysis.mode": "automatic",
-    "cmake.sourceDirectory": "/home/noeon/Dev-Projects/test_example/linux"
+    "cmake.sourceDirectory": "/home/noeon/Dev-Projects/test_example/linux",
+    "cSpell.words": [
+        "Moto"
+    ]
 }
