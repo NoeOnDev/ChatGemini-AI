@@ -50,6 +50,7 @@ class ContactScreenState extends State<ContactScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Contact'),
+        automaticallyImplyLeading: false,
       ),
       body: Column(
         children: [
