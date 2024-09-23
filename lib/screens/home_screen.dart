@@ -9,13 +9,65 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Home Screen'),
       ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.pushNamed(context, '/posts');
-          },
-          child: const Text('Go to Api consumer Screen'),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text(
+                'Menu',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text('Home'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.api),
+              title: const Text('Posts'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/posts');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.gif),
+              title: const Text('GIFs'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/gifts');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.contact_page),
+              title: const Text('Contacto'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/contact');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Settings'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
         ),
+      ),
+      body: const Center(
+        child: Text('Home Screen Content'),
       ),
     );
   }
