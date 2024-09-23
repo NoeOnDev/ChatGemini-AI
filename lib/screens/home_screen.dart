@@ -50,7 +50,7 @@ class HomeScreen extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.contact_page),
-              title: const Text('Contacto'),
+              title: const Text('Contact'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.pushNamed(context, '/contact');
