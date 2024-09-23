@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ContactScreen extends StatefulWidget {
+  const ContactScreen({super.key});
+
   @override
-  _ContactScreenState createState() => _ContactScreenState();
+  ContactScreenState createState() => ContactScreenState();
 }
 
-class _ContactScreenState extends State<ContactScreen> {
+class ContactScreenState extends State<ContactScreen> {
   bool _hasCallSupport = false;
   final TextEditingController _phoneController = TextEditingController();
 
@@ -31,7 +33,7 @@ class _ContactScreenState extends State<ContactScreen> {
     if (await canLaunchUrl(launchUri)) {
       await launchUrl(launchUri);
     } else {
-      throw 'No se pudo hacer la llamada';
+      throw 'Could not make the call';
     }
   }
 
@@ -45,7 +47,7 @@ class _ContactScreenState extends State<ContactScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Realizar Llamada'),
+        title: const Text('Make a Call'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -55,7 +57,7 @@ class _ContactScreenState extends State<ContactScreen> {
             TextField(
               controller: _phoneController,
               decoration: const InputDecoration(
-                hintText: 'Ingresa el número de teléfono',
+                hintText: 'Enter phone number',
               ),
               keyboardType: TextInputType.phone,
             ),
@@ -69,17 +71,14 @@ class _ContactScreenState extends State<ContactScreen> {
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text(
-                                'Por favor, ingresa un número de teléfono'),
+                            content: Text('Please enter a phone number'),
                           ),
                         );
                       }
                     }
                   : null,
               child: Text(
-                _hasCallSupport
-                    ? 'Realizar llamada'
-                    : 'Las llamadas no están soportadas',
+                _hasCallSupport ? 'Make Call' : 'Calling not supported',
               ),
             ),
           ],
