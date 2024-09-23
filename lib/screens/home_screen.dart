@@ -67,7 +67,19 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
       body: const Center(
-        child: Text('Home Screen Content'),
+        child: Padding(
+          padding: EdgeInsets.only(
+              bottom: 100.0),
+          child: Text(
+            '¡Welcome to my humble application!',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.blue,
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
       ),
     );
   }
