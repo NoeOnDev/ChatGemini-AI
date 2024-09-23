@@ -53,71 +53,76 @@ class ContactScreenState extends State<ContactScreen> {
       ),
       body: Column(
         children: [
-          Card(
-            margin: const EdgeInsets.all(16.0),
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    children: [
-                      const CircleAvatar(
-                        radius: 30,
-                        backgroundImage: NetworkImage(
-                          'https://avatars.githubusercontent.com/u/105474616?v=4',
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Noé Alejandro Rodriguez Moto',
-                            style: TextStyle(
-                              fontSize: 19,
-                              fontWeight: FontWeight.bold,
-                            ),
+          InkWell(
+            onTap: () {
+              _makePhoneCall(_phoneNumber);
+            },
+            child: Card(
+              margin: const EdgeInsets.all(16.0),
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        const CircleAvatar(
+                          radius: 30,
+                          backgroundImage: NetworkImage(
+                            'https://avatars.githubusercontent.com/u/105474616?v=4',
                           ),
-                          const SizedBox(height: 4),
-                          const Text('Tuition: 221219'),
-                          const SizedBox(height: 4),
-                          Text('Phone: $_phoneNumber'),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        icon: const FaIcon(FontAwesomeIcons.github),
-                        onPressed: () => _launchUrl(_githubUrl),
-                        color: Colors.black,
-                        iconSize: 32.0,
-                      ),
-                      const SizedBox(width: 16),
-                      IconButton(
-                        icon: const Icon(Icons.phone),
-                        onPressed: () => _makePhoneCall(_phoneNumber),
-                        color: Colors.green,
-                        iconSize: 32.0,
-                      ),
-                      const SizedBox(width: 16),
-                      IconButton(
-                        icon: const Icon(Icons.message),
-                        onPressed: () => _sendSms(_phoneNumber),
-                        color: Colors.blue,
-                        iconSize: 32.0,
-                      ),
-                    ],
-                  )
-                ],
+                        ),
+                        const SizedBox(width: 16),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Noé Alejandro Rodriguez Moto',
+                              style: TextStyle(
+                                fontSize: 19,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            const Text('Tuition: 221219'),
+                            const SizedBox(height: 4),
+                            Text('Phone: $_phoneNumber'),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(
+                          icon: const FaIcon(FontAwesomeIcons.github),
+                          onPressed: () => _launchUrl(_githubUrl),
+                          color: Colors.black,
+                          iconSize: 32.0,
+                        ),
+                        const SizedBox(width: 16),
+                        IconButton(
+                          icon: const Icon(Icons.phone),
+                          onPressed: () => _makePhoneCall(_phoneNumber),
+                          color: Colors.green,
+                          iconSize: 32.0,
+                        ),
+                        const SizedBox(width: 16),
+                        IconButton(
+                          icon: const Icon(Icons.message),
+                          onPressed: () => _sendSms(_phoneNumber),
+                          color: Colors.blue,
+                          iconSize: 32.0,
+                        ),
+                      ],
+                    )
+                  ],
+                ),
               ),
             ),
           ),
