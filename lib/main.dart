@@ -10,11 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 
 void main() async {
-  /// flutter run --dart-define=apiKey='Your Api Key'
   Gemini.init(
       apiKey: const String.fromEnvironment('apiKey'), enableDebugging: true);
-
-  // Gemini.reInitialize(apiKey: "new api key", enableDebugging: false);
 
   runApp(const MyApp());
 }
