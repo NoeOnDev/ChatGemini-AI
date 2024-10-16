@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:speech_to_text/speech_recognition_error.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:logger/logger.dart';
 
@@ -21,7 +23,7 @@ class VoiceInputState extends State<VoiceInput> {
   final Logger _logger = Logger();
   bool _isListening = false;
   bool _speechEnabled = false;
-  String _currentLocaleId = 'es-MX';
+  final String _selectedLocaleId = 'es-MX';
 
   @override
   void initState() {
@@ -29,24 +31,26 @@ class VoiceInputState extends State<VoiceInput> {
     _initSpeech();
   }
 
-  Future<void> _initSpeech() async {
-    try {
-      bool available = await _speech.initialize(
-        onError: (error) => _logger.e('Error: ${error.errorMsg}'),
-        onStatus: (status) => _logger.i('Status: $status'),
-      );
-      if (available) {
-        var systemLocale = await _speech.systemLocale();
-        setState(() {
-          _currentLocaleId = systemLocale?.localeId ?? 'es-MX';
-          _speechEnabled = true;
-        });
-      }
-    } catch (e) {
+  void _errorListener(SpeechRecognitionError error) {
+    _logger.e('Error: ${error.errorMsg}');
+  }
+
+  void _statusListener(String status) {
+    _logger.i('Status: $status');
+    if (status == "done" && _speechEnabled) {
       setState(() {
-        _speechEnabled = false;
+        _isListening = false;
+        widget.onListeningChanged(_isListening);
       });
     }
+  }
+
+  Future<void> _initSpeech() async {
+    _speechEnabled = await _speech.initialize(
+      onError: _errorListener,
+      onStatus: _statusListener,
+    );
+    setState(() {});
   }
 
   void _handleVoiceInput() {
@@ -64,23 +68,15 @@ class VoiceInputState extends State<VoiceInput> {
     }
   }
 
-  void _startListening() {
+  Future<void> _startListening() async {
+    await _stopListening();
+    await Future.delayed(const Duration(milliseconds: 50));
     _speech.listen(
-      onResult: (result) {
-        setState(() {
-          widget.controller.text = result.recognizedWords;
-          if (result.finalResult) {
-            _isListening = false;
-            widget.onListeningChanged(_isListening);
-          }
-        });
-      },
-      listenFor: const Duration(seconds: 30),
-      pauseFor: const Duration(seconds: 5),
+      onResult: _onSpeechResult,
+      localeId: _selectedLocaleId,
+      cancelOnError: false,
       partialResults: true,
-      localeId: _currentLocaleId,
-      onDevice: false,
-      listenMode: ListenMode.confirmation,
+      listenMode: ListenMode.dictation,
     );
     setState(() {
       _isListening = true;
@@ -88,11 +84,17 @@ class VoiceInputState extends State<VoiceInput> {
     });
   }
 
-  void _stopListening() {
-    _speech.stop();
+  Future<void> _stopListening() async {
     setState(() {
       _isListening = false;
       widget.onListeningChanged(_isListening);
+    });
+    await _speech.stop();
+  }
+
+  void _onSpeechResult(SpeechRecognitionResult result) {
+    setState(() {
+      widget.controller.text = result.recognizedWords;
     });
   }
 
