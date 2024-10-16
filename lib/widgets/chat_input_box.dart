@@ -8,6 +8,7 @@ class ChatInputBox extends StatelessWidget {
   final bool isListening;
   final double? confidence;
   final Function(bool isListening)? onListeningChanged;
+  final String language;
 
   const ChatInputBox({
     super.key,
@@ -17,6 +18,7 @@ class ChatInputBox extends StatelessWidget {
     this.isListening = false,
     this.confidence,
     this.onListeningChanged,
+    required this.language,
   });
 
   @override
@@ -55,6 +57,7 @@ class ChatInputBox extends StatelessWidget {
                   child: VoiceInput(
                     controller: controller!,
                     onListeningChanged: onListeningChanged!,
+                    language: language,
                   ),
                 ),
               Expanded(

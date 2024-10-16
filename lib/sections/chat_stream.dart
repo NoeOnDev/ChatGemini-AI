@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:image_picker/image_picker.dart';
-import 'voice_input.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SectionStreamChat extends StatefulWidget {
@@ -97,83 +96,82 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
             ),
           ),
         ChatInputBox(
-            controller: controller,
-            onClickCamera: () {
-              picker.pickMultiImage().then((value) async {
-                final imagesBytes = <Uint8List>[];
-                for (final file in value) {
-                  imagesBytes.add(await file.readAsBytes());
-                }
-
-                if (imagesBytes.isNotEmpty) {
-                  setState(() {
-                    images = imagesBytes;
-                  });
-                }
-              });
-            },
-            isListening: _isListening,
-            onSend: () {
-              if (controller.text.isNotEmpty) {
-                final searchedText = controller.text;
-
-                final promptWithLanguageHint = widget.language == 'Español'
-                    ? "$searchedText. Responde en español por favor."
-                    : "$searchedText. Please respond in English.";
-
-                chats.add(
-                  Content(role: 'user', parts: [Parts(text: searchedText)]),
-                );
-                controller.clear();
-                loading = true;
-
-                if (images != null) {
-                  gemini
-                      .streamGenerateContent(
-                    promptWithLanguageHint,
-                    images: images,
-                  )
-                      .listen((value) {
-                    loading = false;
-                    setState(() {
-                      if (chats.isNotEmpty &&
-                          chats.last.role == value.content?.role) {
-                        chats.last.parts!.last.text =
-                            '${chats.last.parts!.last.text}${value.output}';
-                      } else {
-                        chats.add(Content(
-                            role: 'model', parts: [Parts(text: value.output)]));
-                      }
-                    });
-                    _saveChats();
-                    setState(() {
-                      images = null;
-                    });
-                  });
-                } else {
-                  final recentChats = chats.length > maxChatHistoryLength
-                      ? chats.sublist(chats.length - maxChatHistoryLength)
-                      : chats;
-
-                  gemini.streamChat(recentChats).listen((value) {
-                    loading = false;
-                    setState(() {
-                      if (chats.isNotEmpty &&
-                          chats.last.role == value.content?.role) {
-                        chats.last.parts!.last.text =
-                            '${chats.last.parts!.last.text}${value.output}';
-                      } else {
-                        chats.add(Content(
-                            role: 'model', parts: [Parts(text: value.output)]));
-                      }
-                    });
-                    _saveChats();
-                  });
-                }
-              }
-            }),
-        VoiceInput(
           controller: controller,
+          onClickCamera: () {
+            picker.pickMultiImage().then((value) async {
+              final imagesBytes = <Uint8List>[];
+              for (final file in value) {
+                imagesBytes.add(await file.readAsBytes());
+              }
+
+              if (imagesBytes.isNotEmpty) {
+                setState(() {
+                  images = imagesBytes;
+                });
+              }
+            });
+          },
+          isListening: _isListening,
+          onSend: () {
+            if (controller.text.isNotEmpty) {
+              final searchedText = controller.text;
+
+              final promptWithLanguageHint = widget.language == 'Español'
+                  ? "$searchedText. Responde en español por favor."
+                  : "$searchedText. Please respond in English.";
+
+              chats.add(
+                Content(role: 'user', parts: [Parts(text: searchedText)]),
+              );
+              controller.clear();
+              loading = true;
+
+              if (images != null) {
+                gemini
+                    .streamGenerateContent(
+                  promptWithLanguageHint,
+                  images: images,
+                )
+                    .listen((value) {
+                  loading = false;
+                  setState(() {
+                    if (chats.isNotEmpty &&
+                        chats.last.role == value.content?.role) {
+                      chats.last.parts!.last.text =
+                          '${chats.last.parts!.last.text}${value.output}';
+                    } else {
+                      chats.add(Content(
+                          role: 'model', parts: [Parts(text: value.output)]));
+                    }
+                  });
+                  _saveChats();
+                  setState(() {
+                    images = null;
+                  });
+                });
+              } else {
+                final recentChats = chats.length > maxChatHistoryLength
+                    ? chats.sublist(chats.length - maxChatHistoryLength)
+                    : chats;
+
+                gemini.streamChat(recentChats).listen((value) {
+                  loading = false;
+                  setState(() {
+                    if (chats.isNotEmpty &&
+                        chats.last.role == value.content?.role) {
+                      chats.last.parts!.last.text =
+                          '${chats.last.parts!.last.text}${value.output}';
+                    } else {
+                      chats.add(Content(
+                          role: 'model', parts: [Parts(text: value.output)]));
+                    }
+                  });
+                  _saveChats();
+                });
+              }
+            }
+          },
+          language: widget.language,
           onListeningChanged: (isListening) {
             setState(() {
               _isListening = isListening;

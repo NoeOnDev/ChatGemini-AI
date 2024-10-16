@@ -7,11 +7,13 @@ import 'package:logger/logger.dart';
 class VoiceInput extends StatefulWidget {
   final TextEditingController controller;
   final void Function(bool isListening) onListeningChanged;
+  final String language;
 
   const VoiceInput({
     super.key,
     required this.controller,
     required this.onListeningChanged,
+    required this.language,
   });
 
   @override
@@ -23,7 +25,9 @@ class VoiceInputState extends State<VoiceInput> {
   final Logger _logger = Logger();
   bool _isListening = false;
   bool _speechEnabled = false;
-  final String _selectedLocaleId = 'es-MX';
+
+  String get _selectedLocaleId =>
+      widget.language == 'Español' ? 'es-MX' : 'en-US';
 
   @override
   void initState() {
