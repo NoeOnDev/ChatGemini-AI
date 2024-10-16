@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'dart:convert';
 import '/widgets/chat_input_box.dart';
 import '/widgets/item_image_view.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:image_picker/image_picker.dart';
 import 'voice_input.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SectionStreamChat extends StatefulWidget {
   const SectionStreamChat({super.key});
@@ -25,9 +27,35 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
 
   bool get loading => _loading;
   set loading(bool set) => setState(() => _loading = set);
+
   final List<Content> chats = [];
 
   final int maxChatHistoryLength = 10;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadChats();
+  }
+
+  Future<void> _saveChats() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> chatsEncoded =
+        chats.map((chat) => jsonEncode(chat.toJson())).toList();
+    await prefs.setStringList('chats', chatsEncoded);
+  }
+
+  Future<void> _loadChats() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? chatsEncoded = prefs.getStringList('chats');
+    if (chatsEncoded != null) {
+      setState(() {
+        chats.clear();
+        chats.addAll(chatsEncoded
+            .map((chatStr) => Content.fromJson(jsonDecode(chatStr))));
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,6 +137,7 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
                           role: 'model', parts: [Parts(text: value.output)]));
                     }
                   });
+                  _saveChats();
                   setState(() {
                     images = null;
                   });
@@ -130,6 +159,7 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
                           role: 'model', parts: [Parts(text: value.output)]));
                     }
                   });
+                  _saveChats();
                 });
               }
             }
