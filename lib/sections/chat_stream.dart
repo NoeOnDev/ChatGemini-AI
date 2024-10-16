@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 
 class SectionStreamChat extends StatefulWidget {
   const SectionStreamChat({super.key});
@@ -17,12 +18,87 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
   final controller = TextEditingController();
   final gemini = Gemini.instance;
   final ImagePicker picker = ImagePicker();
+  final SpeechToText speech = SpeechToText();
+  
   bool _loading = false;
+  bool _isListening = false;
+  bool _speechEnabled = false;
   List<Uint8List>? images;
+  String _currentLocaleId = '';
 
   bool get loading => _loading;
   set loading(bool set) => setState(() => _loading = set);
   final List<Content> chats = [];
+
+  final int maxChatHistoryLength = 10;
+
+  @override
+  void initState() {
+    super.initState();
+    initSpeech();
+  }
+
+  Future<void> initSpeech() async {
+    try {
+      var available = await speech.initialize(
+        onError: (error) => print('Error: ${error.errorMsg}'),
+        onStatus: (status) => print('Status: $status'),
+      );
+      
+      if (available) {
+        var systemLocale = await speech.systemLocale();
+        _currentLocaleId = systemLocale?.localeId ?? '';
+      }
+
+      setState(() {
+        _speechEnabled = available;
+      });
+    } catch (e) {
+      setState(() {
+        _speechEnabled = false;
+      });
+    }
+  }
+
+  void handleVoiceInput() {
+    if (!_speechEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Speech recognition not available')),
+      );
+      return;
+    }
+
+    if (!_isListening) {
+      startListening();
+    } else {
+      stopListening();
+    }
+  }
+
+  void startListening() {
+    speech.listen(
+      onResult: (result) {
+        setState(() {
+          controller.text = result.recognizedWords;
+          if (result.finalResult) {
+            _isListening = false;
+          }
+        });
+      },
+      localeId: _currentLocaleId,
+      listenMode: ListenMode.confirmation,
+    );
+    setState(() {
+      _isListening = true;
+    });
+  }
+
+  void stopListening() {
+    speech.stop();
+    setState(() {
+      _isListening = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +153,8 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
               }
             });
           },
+          onClickMic: handleVoiceInput,
+          isListening: _isListening,
           onSend: () {
             if (controller.text.isNotEmpty) {
               final searchedText = controller.text;
@@ -108,7 +186,11 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
                   });
                 });
               } else {
-                gemini.streamChat(chats).listen((value) {
+                final recentChats = chats.length > maxChatHistoryLength
+                    ? chats.sublist(chats.length - maxChatHistoryLength)
+                    : chats;
+
+                gemini.streamChat(recentChats).listen((value) {
                   loading = false;
                   setState(() {
                     if (chats.isNotEmpty &&
