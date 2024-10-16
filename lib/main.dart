@@ -29,10 +29,10 @@ class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State {
   String _selectedLanguage = 'Español';
 
   final _languages = ['Español', 'Inglés'];
@@ -44,17 +44,20 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text('Flutter Gemini - $_selectedLanguage'),
         actions: [
-          PopupMenuButton<String>(
+          PopupMenuButton(
             initialValue: _selectedLanguage,
             onSelected: (value) => setState(() => _selectedLanguage = value),
             itemBuilder: (context) => _languages.map((language) {
-              return PopupMenuItem<String>(
+              return PopupMenuItem(
                 value: language,
                 child: Text(language),
               );
             }).toList(),
-            child: const Icon(Icons.language),
-          )
+            child: const Padding(
+              padding: EdgeInsets.only(right: 16.0),
+              child: Icon(Icons.language),
+            ),
+          ),
         ],
       ),
       body: SectionStreamChat(language: _selectedLanguage),
