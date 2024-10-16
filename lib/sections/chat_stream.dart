@@ -1,7 +1,10 @@
+import 'dart:typed_data';
 import '/widgets/chat_input_box.dart';
+import '/widgets/item_image_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:image_picker/image_picker.dart';
 
 class SectionStreamChat extends StatefulWidget {
   const SectionStreamChat({super.key});
@@ -13,10 +16,11 @@ class SectionStreamChat extends StatefulWidget {
 class _SectionStreamChatState extends State<SectionStreamChat> {
   final controller = TextEditingController();
   final gemini = Gemini.instance;
+  final ImagePicker picker = ImagePicker();
   bool _loading = false;
+  List<Uint8List>? images;
 
   bool get loading => _loading;
-
   set loading(bool set) => setState(() => _loading = set);
   final List<Content> chats = [];
 
@@ -25,24 +29,54 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
     return Column(
       children: [
         Expanded(
-            child: chats.isNotEmpty
-                ? Align(
-                    alignment: Alignment.bottomCenter,
-                    child: SingleChildScrollView(
-                      reverse: true,
-                      child: ListView.builder(
-                        itemBuilder: chatItem,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: chats.length,
-                        reverse: false,
-                      ),
+          child: chats.isNotEmpty
+              ? Align(
+                  alignment: Alignment.bottomCenter,
+                  child: SingleChildScrollView(
+                    reverse: true,
+                    child: ListView.builder(
+                      itemBuilder: chatItem,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: chats.length,
+                      reverse: false,
                     ),
-                  )
-                : const Center(child: Text('Search something!'))),
+                  ),
+                )
+              : const Center(child: Text('Search something!')),
+        ),
         if (loading) const CircularProgressIndicator(),
+        if (images != null)
+          Container(
+            height: 120,
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            alignment: Alignment.centerLeft,
+            child: Card(
+              child: ListView.builder(
+                itemBuilder: (context, index) => ItemImageView(
+                  bytes: images!.elementAt(index),
+                ),
+                itemCount: images!.length,
+                scrollDirection: Axis.horizontal,
+              ),
+            ),
+          ),
         ChatInputBox(
           controller: controller,
+          onClickCamera: () {
+            picker.pickMultiImage().then((value) async {
+              final imagesBytes = <Uint8List>[];
+              for (final file in value) {
+                imagesBytes.add(await file.readAsBytes());
+              }
+
+              if (imagesBytes.isNotEmpty) {
+                setState(() {
+                  images = imagesBytes;
+                });
+              }
+            });
+          },
           onSend: () {
             if (controller.text.isNotEmpty) {
               final searchedText = controller.text;
@@ -51,21 +85,43 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
               controller.clear();
               loading = true;
 
-              gemini.streamChat(chats).listen((value) {
-                print("-------------------------------");
-                print(value.output);
-                loading = false;
-                setState(() {
-                  if (chats.isNotEmpty &&
-                      chats.last.role == value.content?.role) {
-                    chats.last.parts!.last.text =
-                        '${chats.last.parts!.last.text}${value.output}';
-                  } else {
-                    chats.add(Content(
-                        role: 'model', parts: [Parts(text: value.output)]));
-                  }
+              if (images != null) {
+                gemini
+                    .streamGenerateContent(
+                  searchedText,
+                  images: images,
+                )
+                    .listen((value) {
+                  loading = false;
+                  setState(() {
+                    if (chats.isNotEmpty &&
+                        chats.last.role == value.content?.role) {
+                      chats.last.parts!.last.text =
+                          '${chats.last.parts!.last.text}${value.output}';
+                    } else {
+                      chats.add(Content(
+                          role: 'model', parts: [Parts(text: value.output)]));
+                    }
+                  });
+                  setState(() {
+                    images = null;
+                  });
                 });
-              });
+              } else {
+                gemini.streamChat(chats).listen((value) {
+                  loading = false;
+                  setState(() {
+                    if (chats.isNotEmpty &&
+                        chats.last.role == value.content?.role) {
+                      chats.last.parts!.last.text =
+                          '${chats.last.parts!.last.text}${value.output}';
+                    } else {
+                      chats.add(Content(
+                          role: 'model', parts: [Parts(text: value.output)]));
+                    }
+                  });
+                });
+              }
             }
           },
         ),
