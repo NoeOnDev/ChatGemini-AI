@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:test_example/sections/voice_input.dart';
 
 class ChatInputBox extends StatelessWidget {
   final TextEditingController? controller;
   final VoidCallback? onSend;
   final VoidCallback? onClickCamera;
-  final VoidCallback? onClickMic;
   final bool isListening;
   final double? confidence;
+  final Function(bool isListening)? onListeningChanged;
 
   const ChatInputBox({
     super.key,
     this.controller,
     this.onSend,
     this.onClickCamera,
-    this.onClickMic,
     this.isListening = false,
     this.confidence,
+    this.onListeningChanged,
   });
 
   @override
@@ -48,23 +49,12 @@ class ChatInputBox extends StatelessWidget {
                     icon: const Icon(Icons.file_copy_rounded),
                   ),
                 ),
-              if (onClickMic != null)
+              if (controller != null && onListeningChanged != null)
                 Padding(
                   padding: const EdgeInsets.all(4.0),
-                  child: IconButton(
-                    onPressed: onClickMic,
-                    color: isListening ? Colors.red : colorScheme.onSecondary,
-                    icon: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 200),
-                      transitionBuilder:
-                          (Widget child, Animation<double> animation) {
-                        return ScaleTransition(scale: animation, child: child);
-                      },
-                      child: Icon(
-                        isListening ? Icons.mic : Icons.mic_none_rounded,
-                        key: ValueKey<bool>(isListening),
-                      ),
-                    ),
+                  child: VoiceInput(
+                    controller: controller!,
+                    onListeningChanged: onListeningChanged!,
                   ),
                 ),
               Expanded(

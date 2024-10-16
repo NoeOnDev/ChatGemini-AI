@@ -1,11 +1,4 @@
-import 'sections/chat.dart';
 import 'sections/chat_stream.dart';
-import 'sections/embed_batch_contents.dart';
-import 'sections/embed_content.dart';
-import 'sections/response_widget_stream.dart';
-import 'sections/stream.dart';
-import 'sections/text_and_image.dart';
-import 'sections/text_only.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 
@@ -51,15 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _selectedItem = 0;
 
   final _sections = <SectionItem>[
-    SectionItem(0, 'Stream text', const SectionTextStreamChat()),
-    SectionItem(1, 'textAndImage', const SectionTextAndImageInput()),
-    SectionItem(2, 'chat', const SectionChat()),
-    SectionItem(3, 'Stream chat', const SectionStreamChat()),
-    SectionItem(4, 'text', const SectionTextInput()),
-    SectionItem(5, 'embedContent', const SectionEmbedContent()),
-    SectionItem(6, 'batchEmbedContents', const SectionBatchEmbedContents()),
-    SectionItem(
-        7, 'response without setState()', const ResponseWidgetSection()),
+    SectionItem(0, 'Stream chat', const SectionStreamChat()),
   ];
 
   @override
