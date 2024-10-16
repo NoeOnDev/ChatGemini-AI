@@ -7,14 +7,14 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
 
-class SectionTextStreamInput extends StatefulWidget {
-  const SectionTextStreamInput({super.key});
+class SectionTextStreamChat extends StatefulWidget {
+  const SectionTextStreamChat({super.key});
 
   @override
-  State<SectionTextStreamInput> createState() => _SectionTextInputStreamState();
+  State<SectionTextStreamChat> createState() => _SectionTextInputStreamChat();
 }
 
-class _SectionTextInputStreamState extends State<SectionTextStreamInput> {
+class _SectionTextInputStreamChat extends State<SectionTextStreamChat> {
   final ImagePicker picker = ImagePicker();
   final controller = TextEditingController();
   final gemini = Gemini.instance;
