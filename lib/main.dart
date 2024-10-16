@@ -25,14 +25,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class SectionItem {
-  final int index;
-  final String title;
-  final Widget widget;
-
-  SectionItem(this.index, this.title, this.widget);
-}
-
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
 
@@ -41,35 +33,31 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _selectedItem = 0;
+  String _selectedLanguage = 'Español';
 
-  final _sections = <SectionItem>[
-    SectionItem(0, 'Stream chat', const SectionStreamChat()),
-  ];
+  final _languages = ['Español', 'Inglés'];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(_selectedItem == 0
-            ? 'Flutter Gemini'
-            : _sections[_selectedItem].title),
+        title: Text('Flutter Gemini - $_selectedLanguage'),
         actions: [
-          PopupMenuButton<int>(
-            initialValue: _selectedItem,
-            onSelected: (value) => setState(() => _selectedItem = value),
-            itemBuilder: (context) => _sections.map((e) {
-              return PopupMenuItem<int>(value: e.index, child: Text(e.title));
+          PopupMenuButton<String>(
+            initialValue: _selectedLanguage,
+            onSelected: (value) => setState(() => _selectedLanguage = value),
+            itemBuilder: (context) => _languages.map((language) {
+              return PopupMenuItem<String>(
+                value: language,
+                child: Text(language),
+              );
             }).toList(),
-            child: const Icon(Icons.more_vert_rounded),
+            child: const Icon(Icons.language),
           )
         ],
       ),
-      body: IndexedStack(
-        index: _selectedItem,
-        children: _sections.map((e) => e.widget).toList(),
-      ),
+      body: SectionStreamChat(language: _selectedLanguage),
     );
   }
 }
