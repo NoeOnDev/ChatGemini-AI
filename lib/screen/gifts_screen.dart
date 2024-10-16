@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../models//gift.dart';
+import '../models/gift.dart';
 
 class GiftsScreen extends StatefulWidget {
   const GiftsScreen({super.key});

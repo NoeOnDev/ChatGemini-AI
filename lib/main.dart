@@ -1,6 +1,7 @@
 import 'sections/chat_stream.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
+import 'screens/home_screen.dart';
 
 void main() async {
   Gemini.init(apiKey: 'AIzaSyB6zT53eMugA47fm2w3qaPinBQPp2w9ZBc');
@@ -20,7 +21,12 @@ class MyApp extends StatelessWidget {
       darkTheme: ThemeData.dark().copyWith(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
           cardTheme: CardTheme(color: Colors.blue.shade900)),
-      home: const MyHomePage(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const MyHomePage(),
+        '/chat': (context) => const MyHomePage(),
+        '/home': (context) => const HomeScreen(),
+      },
     );
   }
 }
@@ -61,6 +67,31 @@ class _MyHomePageState extends State {
         ],
       ),
       body: SectionStreamChat(language: _selectedLanguage),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text('Menú de Navegación'),
+            ),
+            ListTile(
+              title: const Text('Home'),
+              onTap: () {
+                Navigator.pushNamed(context, '/home');
+              },
+            ),
+            ListTile(
+              title: const Text('Chat'),
+              onTap: () {
+                Navigator.pushNamed(context, '/chat');
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -58,7 +58,15 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
     }
   }
 
-  @override
+    Future<void> _clearChats() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('chats');
+    setState(() {
+      chats.clear();
+    });
+  }
+
+@override
   Widget build(BuildContext context) {
     return Column(
       children: [
@@ -95,6 +103,10 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
               ),
             ),
           ),
+        ElevatedButton(
+          onPressed: _clearChats,
+          child: const Text('Clear Chats'),
+        ),
         ChatInputBox(
           controller: controller,
           onClickCamera: () {
