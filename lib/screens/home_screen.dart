@@ -20,7 +20,7 @@ class HomeScreen extends StatelessWidget {
             Text('Universidad: Universidad Politécnica de Chiapas',
                 style: TextStyle(fontSize: 18)),
             SizedBox(height: 8),
-            Text('Carrera: Ingeniería en Software',
+            Text('Carrera: Ingeniería en Desarrollo Software',
                 style: TextStyle(fontSize: 18)),
           ],
         ),
