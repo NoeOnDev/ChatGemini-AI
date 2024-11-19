@@ -79,6 +79,12 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
     await flutterTts.speak(text);
   }
 
+  String _cleanMarkdown(String text) {
+    final RegExp markdownRegExp =
+        RegExp(r'(\*|_|~|`|>|#|\[|\]|\(|\)|!|\+|-|\d+\.)');
+    return text.replaceAll(markdownRegExp, '');
+  }
+
   Future<void> _saveChats() async {
     await ChatStorage.saveChats(widget.chatsNotifier.value);
   }
@@ -193,7 +199,7 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
                   });
                   _saveChats();
                 }, onDone: () {
-                  _speak(accumulatedResponse);
+                  _speak(_cleanMarkdown(accumulatedResponse));
                   setState(() {
                     images = null;
                   });
@@ -222,7 +228,7 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
                   });
                   _saveChats();
                 }, onDone: () {
-                  _speak(accumulatedResponse);
+                  _speak(_cleanMarkdown(accumulatedResponse));
                 });
               }
             }
