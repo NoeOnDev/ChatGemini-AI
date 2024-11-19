@@ -36,9 +36,15 @@ class ChatInputBox extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               color: Colors.red,
-              child: const Text(
-                'No hay conexión a internet',
-                style: TextStyle(color: Colors.white),
+              child: const Row(
+                children: [
+                  Icon(Icons.wifi_off, color: Colors.white),
+                  SizedBox(width: 8),
+                  Text(
+                    'No internet connection',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ],
               ),
             ),
           if (isListening)
@@ -94,7 +100,9 @@ class ChatInputBox extends StatelessWidget {
                 padding: const EdgeInsets.all(4),
                 child: FloatingActionButton.small(
                   onPressed: isConnected ? onSend : null,
-                  child: const Icon(Icons.send_rounded),
+                  child: Icon(
+                    isConnected ? Icons.send_rounded : Icons.desktop_access_disabled,
+                  ),
                 ),
               )
             ],
