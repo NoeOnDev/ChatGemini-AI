@@ -24,6 +24,7 @@ dependencies:
   logger: ^2.4.0
   shared_preferences: ^2.3.2
   connectivity_plus: ^6.1.0
+  flutter_tts: ^4.2.0
 
 dev_dependencies:
   flutter_test:

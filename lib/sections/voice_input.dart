@@ -78,9 +78,11 @@ class VoiceInputState extends State<VoiceInput> {
     _speech.listen(
       onResult: _onSpeechResult,
       localeId: _selectedLocaleId,
-      cancelOnError: false,
-      partialResults: true,
-      listenMode: ListenMode.dictation,
+      listenOptions: SpeechListenOptions(
+        cancelOnError: false,
+        partialResults: true,
+        listenMode: ListenMode.dictation,
+      ),
     );
     setState(() {
       _isListening = true;

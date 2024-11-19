@@ -146,8 +146,8 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
               final searchedText = controller.text;
 
               final promptWithLanguageHint = widget.language == 'Español'
-                  ? "$searchedText. Por favor responde en inglés, necesito que me ayudes a practicar inglés."
-                  : "$searchedText. Please answer in English, I need you to help me practice English.";
+                  ? "$searchedText. Por favor responde en español. Necesito que me ayudes a practicar español. Responde solo en español."
+                  : "$searchedText. Please answer in English. I need you to help me practice English. Respond only in English.";
 
               widget.chatsNotifier.value.add(
                 Content(role: 'user', parts: [Parts(text: searchedText)]),
