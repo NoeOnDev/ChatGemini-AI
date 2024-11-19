@@ -8,6 +8,9 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:lottie/lottie.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import '/utils/connectivity_service.dart';
 
 class SectionStreamChat extends StatefulWidget {
   final String language;
@@ -24,9 +27,11 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
   final controller = TextEditingController();
   final gemini = Gemini.instance;
   final ImagePicker picker = ImagePicker();
+  final ConnectivityService _connectivityService = ConnectivityService();
 
   bool _loading = false;
   bool _isListening = false;
+  bool _isConnected = true;
   List<Uint8List>? images;
 
   bool get loading => _loading;
@@ -38,6 +43,17 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
   void initState() {
     super.initState();
     _loadChats();
+    _connectivityService.connectivityStream.listen((result) {
+      setState(() {
+        _isConnected = result != ConnectivityResult.none;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _connectivityService.dispose();
+    super.dispose();
   }
 
   Future<void> _saveChats() async {
@@ -86,7 +102,13 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
             },
           ),
         ),
-        if (loading) const CircularProgressIndicator(),
+        if (loading)
+          Center(
+            child: Lottie.asset(
+              'assets/lottie/ai.json',
+              fit: BoxFit.fill,
+            ),
+          ),
         if (images != null)
           Container(
             height: 120,
@@ -124,8 +146,8 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
               final searchedText = controller.text;
 
               final promptWithLanguageHint = widget.language == 'Español'
-                  ? "$searchedText. Responde en español por favor."
-                  : "$searchedText. Please respond in English.";
+                  ? "$searchedText. Por favor responde en inglés, necesito que me ayudes a practicar inglés."
+                  : "$searchedText. Please answer in English, I need you to help me practice English.";
 
               widget.chatsNotifier.value.add(
                 Content(role: 'user', parts: [Parts(text: searchedText)]),
@@ -189,6 +211,7 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
               _isListening = isListening;
             });
           },
+          isConnected: _isConnected,
         ),
       ],
     );

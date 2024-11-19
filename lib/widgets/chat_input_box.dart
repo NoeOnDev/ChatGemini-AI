@@ -9,6 +9,7 @@ class ChatInputBox extends StatelessWidget {
   final double? confidence;
   final Function(bool isListening)? onListeningChanged;
   final String language;
+  final bool isConnected;
 
   const ChatInputBox({
     super.key,
@@ -19,6 +20,7 @@ class ChatInputBox extends StatelessWidget {
     this.confidence,
     this.onListeningChanged,
     required this.language,
+    required this.isConnected,
   });
 
   @override
@@ -30,6 +32,15 @@ class ChatInputBox extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (!isConnected)
+            Container(
+              padding: const EdgeInsets.all(8),
+              color: Colors.red,
+              child: const Text(
+                'No hay conexión a internet',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
           if (isListening)
             LinearProgressIndicator(
               value: confidence,
@@ -82,7 +93,7 @@ class ChatInputBox extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(4),
                 child: FloatingActionButton.small(
-                  onPressed: onSend,
+                  onPressed: isConnected ? onSend : null,
                   child: const Icon(Icons.send_rounded),
                 ),
               )
