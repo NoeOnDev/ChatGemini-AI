@@ -33,7 +33,7 @@ class ChatInputBox extends StatelessWidget {
           if (isListening)
             LinearProgressIndicator(
               value: confidence,
-              backgroundColor: colorScheme.surfaceVariant,
+              backgroundColor: colorScheme.surfaceContainerHighest,
               valueColor: AlwaysStoppedAnimation<Color>(
                   confidence != null && confidence! > 0.8
                       ? Colors.green
