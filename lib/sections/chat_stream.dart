@@ -7,6 +7,7 @@ import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import '/utils/connectivity_service.dart';
 import '/utils/chat_storage.dart';
 
@@ -26,11 +27,13 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
   final gemini = Gemini.instance;
   final ImagePicker picker = ImagePicker();
   final ConnectivityService _connectivityService = ConnectivityService();
+  final FlutterTts flutterTts = FlutterTts();
 
   bool _loading = false;
   bool _isListening = false;
   bool _isConnected = true;
   List<Uint8List>? images;
+  String accumulatedResponse = '';
 
   bool get loading => _loading;
   set loading(bool set) => setState(() => _loading = set);
@@ -46,12 +49,26 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
         _isConnected = result != ConnectivityResult.none;
       });
     });
+    _configureTts();
   }
 
   @override
   void dispose() {
     _connectivityService.dispose();
+    flutterTts.stop();
     super.dispose();
+  }
+
+  Future<void> _configureTts() async {
+    await flutterTts
+        .setLanguage(widget.language == 'Español' ? 'es-ES' : 'en-US');
+    await flutterTts.setSpeechRate(0.5);
+    await flutterTts.setVolume(1.0);
+    await flutterTts.setPitch(1.0);
+  }
+
+  Future<void> _speak(String text) async {
+    await flutterTts.speak(text);
   }
 
   Future<void> _saveChats() async {
@@ -79,8 +96,8 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
                       child: SingleChildScrollView(
                         reverse: true,
                         child: ListView.builder(
-                          itemBuilder: (context, index) => ChatItem(
-                              content: chats[index]),
+                          itemBuilder: (context, index) =>
+                              ChatItem(content: chats[index]),
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: chats.length,
@@ -88,7 +105,7 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
                         ),
                       ),
                     )
-                  : const Center(child: Text('Search something!'));
+                  : const Center(child: Text('Start a conversation'));
             },
           ),
         ),
@@ -144,6 +161,7 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
               );
               controller.clear();
               loading = true;
+              accumulatedResponse = '';
 
               if (images != null) {
                 gemini
@@ -163,8 +181,11 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
                       widget.chatsNotifier.value.add(Content(
                           role: 'model', parts: [Parts(text: value.output)]));
                     }
+                    accumulatedResponse += value.output ?? '';
                   });
                   _saveChats();
+                }, onDone: () {
+                  _speak(accumulatedResponse);
                   setState(() {
                     images = null;
                   });
@@ -189,8 +210,11 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
                       widget.chatsNotifier.value.add(Content(
                           role: 'model', parts: [Parts(text: value.output)]));
                     }
+                    accumulatedResponse += value.output ?? '';
                   });
                   _saveChats();
+                }, onDone: () {
+                  _speak(accumulatedResponse);
                 });
               }
             }
