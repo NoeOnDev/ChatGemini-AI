@@ -27,7 +27,7 @@ class VoiceInputState extends State<VoiceInput> {
   bool _speechEnabled = false;
 
   String get _selectedLocaleId =>
-      widget.language == 'Español' ? 'es-MX' : 'en-US';
+      widget.language == 'Spanish' ? 'es-MX' : 'en-US';
 
   @override
   void initState() {

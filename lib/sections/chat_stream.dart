@@ -53,6 +53,14 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
   }
 
   @override
+  void didUpdateWidget(covariant SectionStreamChat oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.language != widget.language) {
+      _configureTts();
+    }
+  }
+
+  @override
   void dispose() {
     _connectivityService.dispose();
     flutterTts.stop();
@@ -61,7 +69,7 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
 
   Future<void> _configureTts() async {
     await flutterTts
-        .setLanguage(widget.language == 'Español' ? 'es-ES' : 'en-US');
+        .setLanguage(widget.language == 'Spanish' ? 'es-MX' : 'en-US');
     await flutterTts.setSpeechRate(0.5);
     await flutterTts.setVolume(1.0);
     await flutterTts.setPitch(1.0);
@@ -152,7 +160,7 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
             if (controller.text.isNotEmpty) {
               final searchedText = controller.text;
 
-              final promptWithLanguageHint = widget.language == 'Español'
+              final promptWithLanguageHint = widget.language == 'Spanish'
                   ? "$searchedText. Por favor responde en español. Necesito que me ayudes a practicar español. Responde solo en español."
                   : "$searchedText. Please answer in English. I need you to help me practice English. Respond only in English.";
 

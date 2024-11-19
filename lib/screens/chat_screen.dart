@@ -12,8 +12,8 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  String _selectedLanguage = 'Español';
-  final _languages = ['Español', 'Inglés'];
+  String _selectedLanguage = 'Spanish';
+  final _languages = ['Spanish', 'English'];
   final ValueNotifier<List<Content>> _chatsNotifier =
       ValueNotifier<List<Content>>([]);
 
@@ -28,8 +28,8 @@ class _ChatScreenState extends State<ChatScreen> {
       context: context,
       dialogType: DialogType.warning,
       animType: AnimType.bottomSlide,
-      title: 'Eliminar Chats',
-      desc: '¿Estás seguro de que deseas eliminar todos los chats?',
+      title: 'Clear Chats',
+      desc: 'Are you sure you want to clear all chats?',
       btnCancelOnPress: () {},
       btnOkOnPress: _clearChats,
     ).show();
