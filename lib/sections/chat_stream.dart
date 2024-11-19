@@ -1,16 +1,14 @@
 import 'dart:typed_data';
-import 'dart:convert';
 import '/widgets/chat_input_box.dart';
 import '/widgets/item_image_view.dart';
+import '/widgets/chat_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lottie/lottie.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import '/utils/connectivity_service.dart';
+import '/utils/chat_storage.dart';
 
 class SectionStreamChat extends StatefulWidget {
   final String language;
@@ -57,23 +55,14 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
   }
 
   Future<void> _saveChats() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> chatsEncoded = widget.chatsNotifier.value
-        .map((chat) => jsonEncode(chat.toJson()))
-        .toList();
-    await prefs.setStringList('chats', chatsEncoded);
+    await ChatStorage.saveChats(widget.chatsNotifier.value);
   }
 
   Future<void> _loadChats() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String>? chatsEncoded = prefs.getStringList('chats');
-    if (chatsEncoded != null) {
-      setState(() {
-        widget.chatsNotifier.value = chatsEncoded
-            .map((chatStr) => Content.fromJson(jsonDecode(chatStr)))
-            .toList();
-      });
-    }
+    final loadedChats = await ChatStorage.loadChats();
+    setState(() {
+      widget.chatsNotifier.value = loadedChats;
+    });
   }
 
   @override
@@ -90,7 +79,8 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
                       child: SingleChildScrollView(
                         reverse: true,
                         child: ListView.builder(
-                          itemBuilder: chatItem,
+                          itemBuilder: (context, index) => ChatItem(
+                              content: chats[index]),
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: chats.length,
@@ -214,56 +204,6 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
           isConnected: _isConnected,
         ),
       ],
-    );
-  }
-
-  Widget chatItem(BuildContext context, int index) {
-    final Content content = widget.chatsNotifier.value[index];
-
-    return Card(
-      elevation: 0,
-      color:
-          content.role == 'model' ? Colors.blue.shade800 : Colors.transparent,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CircleAvatar(
-              backgroundColor:
-                  content.role == 'model' ? Colors.blue : Colors.grey,
-              child: content.role == 'model'
-                  ? Transform.translate(
-                      offset: const Offset(-2, -2),
-                      child: const Icon(
-                        FontAwesomeIcons.robot,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    )
-                  : const Icon(
-                      FontAwesomeIcons.user,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Markdown(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    data: content.parts?.lastOrNull?.text ??
-                        'cannot generate data!',
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
