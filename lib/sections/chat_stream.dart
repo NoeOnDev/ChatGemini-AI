@@ -14,9 +14,14 @@ import '/utils/chat_storage.dart';
 class SectionStreamChat extends StatefulWidget {
   final String language;
   final ValueNotifier<List<Content>> chatsNotifier;
+  final String? locationContext;
 
-  const SectionStreamChat(
-      {super.key, required this.language, required this.chatsNotifier});
+  const SectionStreamChat({
+    super.key,
+    required this.language,
+    required this.chatsNotifier,
+    this.locationContext,
+  });
 
   @override
   State<SectionStreamChat> createState() => _SectionStreamChatState();
@@ -166,71 +171,65 @@ class _SectionStreamChatState extends State<SectionStreamChat> {
             if (controller.text.isNotEmpty) {
               final searchedText = controller.text;
 
+              // Obtener los últimos mensajes del historial
+              final recentChats = widget.chatsNotifier.value.length >
+                      maxChatHistoryLength
+                  ? widget.chatsNotifier.value.sublist(
+                      widget.chatsNotifier.value.length - maxChatHistoryLength)
+                  : widget.chatsNotifier.value;
+
+              String conversationContext = "";
+              for (var chat in recentChats) {
+                conversationContext +=
+                    "${chat.role == 'user' ? 'Usuario' : 'Asistente'}: ${chat.parts?.lastOrNull?.text}\n";
+              }
+
+              final contextWithLocation = widget.locationContext != null
+                  ? "Mi ubicación actual es: ${widget.locationContext}.\n\nHistorial de conversación:\n$conversationContext\n\nNueva pregunta: $searchedText"
+                  : "Historial de conversación:\n$conversationContext\n\nNueva pregunta: $searchedText";
+
               final promptWithLanguageHint = widget.language == 'Spanish'
-                  ? "$searchedText. Por favor responde en español. Necesito que me ayudes a practicar español. Responde solo en español."
-                  : "$searchedText. Please answer in English. I need you to help me practice English. Respond only in English.";
+                  ? "$contextWithLocation. Por favor responde en español."
+                  : "$contextWithLocation. Please answer in English.";
 
               widget.chatsNotifier.value.add(
                 Content(role: 'user', parts: [Parts(text: searchedText)]),
               );
+
+              print("Prompt enviado al modelo: $promptWithLanguageHint");
+
               controller.clear();
               loading = true;
               accumulatedResponse = '';
 
-              if (images != null) {
-                gemini
-                    .streamGenerateContent(
-                  promptWithLanguageHint,
-                  images: images,
-                )
-                    .listen((value) {
-                  loading = false;
-                  setState(() {
-                    if (widget.chatsNotifier.value.isNotEmpty &&
-                        widget.chatsNotifier.value.last.role ==
-                            value.content?.role) {
-                      widget.chatsNotifier.value.last.parts!.last.text =
-                          '${widget.chatsNotifier.value.last.parts!.last.text}${value.output}';
-                    } else {
-                      widget.chatsNotifier.value.add(Content(
-                          role: 'model', parts: [Parts(text: value.output)]));
-                    }
-                    accumulatedResponse += value.output ?? '';
-                  });
-                  _saveChats();
-                }, onDone: () {
-                  _speak(_cleanMarkdown(accumulatedResponse));
+              gemini
+                  .streamGenerateContent(
+                promptWithLanguageHint,
+                images: images,
+              )
+                  .listen((value) {
+                loading = false;
+                setState(() {
+                  if (widget.chatsNotifier.value.isNotEmpty &&
+                      widget.chatsNotifier.value.last.role ==
+                          value.content?.role) {
+                    widget.chatsNotifier.value.last.parts!.last.text =
+                        '${widget.chatsNotifier.value.last.parts!.last.text}${value.output}';
+                  } else {
+                    widget.chatsNotifier.value.add(Content(
+                        role: 'model', parts: [Parts(text: value.output)]));
+                  }
+                  accumulatedResponse += value.output ?? '';
+                });
+                _saveChats();
+              }, onDone: () {
+                _speak(_cleanMarkdown(accumulatedResponse));
+                if (images != null) {
                   setState(() {
                     images = null;
                   });
-                });
-              } else {
-                final recentChats =
-                    widget.chatsNotifier.value.length > maxChatHistoryLength
-                        ? widget.chatsNotifier.value.sublist(
-                            widget.chatsNotifier.value.length -
-                                maxChatHistoryLength)
-                        : widget.chatsNotifier.value;
-
-                gemini.streamChat(recentChats).listen((value) {
-                  loading = false;
-                  setState(() {
-                    if (widget.chatsNotifier.value.isNotEmpty &&
-                        widget.chatsNotifier.value.last.role ==
-                            value.content?.role) {
-                      widget.chatsNotifier.value.last.parts!.last.text =
-                          '${widget.chatsNotifier.value.last.parts!.last.text}${value.output}';
-                    } else {
-                      widget.chatsNotifier.value.add(Content(
-                          role: 'model', parts: [Parts(text: value.output)]));
-                    }
-                    accumulatedResponse += value.output ?? '';
-                  });
-                  _saveChats();
-                }, onDone: () {
-                  _speak(_cleanMarkdown(accumulatedResponse));
-                });
-              }
+                }
+              });
             }
           },
           language: widget.language,

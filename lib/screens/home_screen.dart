@@ -8,10 +8,10 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(
-          255, 255, 245, 245), // Color de fondo del Scaffold
+          255, 255, 245, 245),
       body: Padding(
         padding:
-            const EdgeInsets.only(top: 32.0), // Padding en la parte superior
+            const EdgeInsets.only(top: 32.0),
         child: Center(
           child: Container(
             padding: const EdgeInsets.all(16.0),

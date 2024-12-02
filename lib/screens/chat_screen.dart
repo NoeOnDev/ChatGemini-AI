@@ -3,6 +3,10 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import '../sections/chat_stream.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
+import 'package:location/location.dart' as loc;
+import 'package:geocoding/geocoding.dart';
+
+import 'qr_scan_screen.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -16,6 +20,41 @@ class _ChatScreenState extends State<ChatScreen> {
   final _languages = ['Spanish', 'English'];
   final ValueNotifier<List<Content>> _chatsNotifier =
       ValueNotifier<List<Content>>([]);
+  String? _locationContext;
+
+  @override
+  void initState() {
+    super.initState();
+    _getLocationContext();
+  }
+
+  Future<void> _getLocationContext() async {
+    loc.Location location = loc.Location();
+    bool serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        return;
+      }
+    }
+
+    loc.PermissionStatus permissionGranted = await location.hasPermission();
+    if (permissionGranted == loc.PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != loc.PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    loc.LocationData currentLocation = await location.getLocation();
+    List<Placemark> placemarks = await placemarkFromCoordinates(
+        currentLocation.latitude!, currentLocation.longitude!);
+    Placemark place = placemarks[0];
+    setState(() {
+      _locationContext =
+          "${place.street}, ${place.subLocality}, ${place.locality}, ${place.administrativeArea}, ${place.postalCode}, ${place.country}";
+    });
+    }
 
   Future<void> _clearChats() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -23,17 +62,34 @@ class _ChatScreenState extends State<ChatScreen> {
     _chatsNotifier.value = [];
   }
 
-  void _showClearChatsDialog() {
-    AwesomeDialog(
-      context: context,
-      dialogType: DialogType.warning,
-      animType: AnimType.bottomSlide,
-      title: 'Clear Chats',
-      desc: 'Are you sure you want to clear all chats?',
-      btnCancelOnPress: () {},
-      btnOkOnPress: _clearChats,
-    ).show();
-  }
+void _showClearChatsDialog() {
+  AwesomeDialog(
+    context: context,
+    dialogType: DialogType.warning,
+    animType: AnimType.bottomSlide,
+    title: 'Clear Chats',
+    desc: 'Are you sure you want to clear all chats?',
+    btnCancelOnPress: () {},
+    btnOkOnPress: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => QRScanScreen(
+            onCodeScanned: (code) {
+              if (code == 'delete') {
+                _clearChats();
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Invalid QR code')),
+                );
+              }
+            },
+          ),
+        ),
+      );
+    },
+  ).show();
+}
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +120,10 @@ class _ChatScreenState extends State<ChatScreen> {
         ],
       ),
       body: SectionStreamChat(
-          language: _selectedLanguage, chatsNotifier: _chatsNotifier),
+        language: _selectedLanguage,
+        chatsNotifier: _chatsNotifier,
+        locationContext: _locationContext,
+      ),
     );
   }
 }

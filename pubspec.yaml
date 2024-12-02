@@ -28,6 +28,7 @@ dependencies:
   awesome_dialog: ^3.2.1
   location: ^7.0.1
   geocoding: ^3.0.0
+  mobile_scanner: ^6.0.2
 
 dev_dependencies:
   flutter_test:
