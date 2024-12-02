@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:location/location.dart' as loc;
 import 'package:geocoding/geocoding.dart';
-
 import 'qr_scan_screen.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -54,7 +53,7 @@ class _ChatScreenState extends State<ChatScreen> {
       _locationContext =
           "${place.street}, ${place.subLocality}, ${place.locality}, ${place.administrativeArea}, ${place.postalCode}, ${place.country}";
     });
-    }
+  }
 
   Future<void> _clearChats() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -62,34 +61,32 @@ class _ChatScreenState extends State<ChatScreen> {
     _chatsNotifier.value = [];
   }
 
-void _showClearChatsDialog() {
-  AwesomeDialog(
-    context: context,
-    dialogType: DialogType.warning,
-    animType: AnimType.bottomSlide,
-    title: 'Clear Chats',
-    desc: 'Are you sure you want to clear all chats?',
-    btnCancelOnPress: () {},
-    btnOkOnPress: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => QRScanScreen(
-            onCodeScanned: (code) {
-              if (code == 'delete') {
-                _clearChats();
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Invalid QR code')),
-                );
-              }
-            },
+  Future<void> _showClearChatsDialog() async {
+    AwesomeDialog(
+      context: context,
+      dialogType: DialogType.warning,
+      animType: AnimType.bottomSlide,
+      title: 'Clear Chats',
+      desc: 'Are you sure you want to clear all chats?',
+      btnCancelOnPress: () {},
+      btnOkOnPress: () async {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const QRScanScreen(),
           ),
-        ),
-      );
-    },
-  ).show();
-}
+        );
+
+        if (result == 'delete') {
+          _clearChats();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Invalid QR code')),
+          );
+        }
+      },
+    ).show();
+  }
 
   @override
   Widget build(BuildContext context) {

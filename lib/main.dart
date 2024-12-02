@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const HomeScreen(),
         '/chat': (context) => const ChatScreen(),
-        '/qr_scan': (context) => QRScanScreen(onCodeScanned: (code) {}),
+        '/qr_scan': (context) => const QRScanScreen()
       },
     );
   }
