@@ -26,6 +26,8 @@ dependencies:
   connectivity_plus: ^6.1.0
   flutter_tts: ^4.2.0
   awesome_dialog: ^3.2.1
+  location: ^7.0.1
+  geocoding: ^3.0.0
 
 dev_dependencies:
   flutter_test:
